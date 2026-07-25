@@ -788,7 +788,12 @@ body {
     font-size: 2.3rem;
   }
   .sticky-top-nav {
-    top: 60px;
-    padding: 10px 12px;
+    top: 56px;
+    padding: 8px 10px;
+    z-index: 80;
+  }
+  .btn-primary, .btn-secondary, .option-btn, .mode-card, .role-btn, .q-select-btn {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 }
