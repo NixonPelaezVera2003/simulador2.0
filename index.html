@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador Examen de Leyes</title>
+  <meta name="description" content="Simulador Examen de Leyes de Conducción con rol estudiante y administrador.">
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Estilos del Sistema de Diseño Tailwind Slate -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- CABECERA PRINCIPAL (NAVBAR) -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="#" class="brand" onclick="app.showView('setup-view'); return false;">
+        <div class="brand-icon">📚</div>
+        <div class="brand-text">
+          <h1>Simulador Examen de Leyes</h1>
+          <p>Licencia de Conducir</p>
+        </div>
+      </a>
+      
+      <div class="role-switch">
+        <button id="role-student-btn" class="role-btn active" onclick="app.switchRole('student')">
+          <span>🎓</span> Estudiante
+        </button>
+        <button id="role-admin-btn" class="role-btn" onclick="app.switchRole('admin')">
+          <span>⚙️</span> Administrador
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="app-container">
+
+    <!-- ===================================================================
+         1. PANTALLA DE INICIO (ESTUDIANTE)
+         =================================================================== -->
+    <section id="setup-view" class="view-section active-view">
+      <div class="welcome-hero">
+        <h2 class="hero-title">Simulador Examen de Leyes</h2>
+        <p class="hero-subtitle">Selecciona la modalidad de estudio que deseas iniciar.</p>
+      </div>
+
+      <div class="card-slate">
+        <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 16px;">Selecciona el Modo de Estudio</h3>
+        <div class="mode-grid">
+          <!-- Modo Examen Real -->
+          <div class="mode-card selected" id="mode-card-exam" onclick="app.selectMode('exam')">
+            <div class="mode-icon">📝</div>
+            <div class="mode-title">Modo Examen Real</div>
+            <div class="mode-desc">Todas las preguntas del banco en una sola vista con selector de preguntas en la parte superior y botón de finalizar examen.</div>
+          </div>
+
+          <!-- Modo 20 Preguntas Aleatorias -->
+          <div class="mode-card" id="mode-card-random" onclick="app.selectMode('random20')">
+            <div class="mode-icon">🎲</div>
+            <div class="mode-title">20 Preguntas Aleatorias</div>
+            <div class="mode-desc">Se seleccionan 20 preguntas al azar del banco. Ideal para practicar rápidamente como si fuera el examen real de la ANT.</div>
+          </div>
+
+          <!-- Modo Cuestionario de Estudio -->
+          <div class="mode-card" id="mode-card-study" onclick="app.selectMode('study')">
+            <div class="mode-icon">📖</div>
+            <div class="mode-title">Modo Cuestionario de Estudio</div>
+            <div class="mode-desc">Todas las preguntas del banco en una sola vista con su respuesta correcta marcada y selector superior de preguntas.</div>
+          </div>
+        </div>
+
+        <button class="btn-primary" style="margin-top: 10px;" onclick="app.startSimulation()">
+          <span>🚀</span> Iniciar Modo Seleccionado
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         2. LOGIN ADMINISTRADOR (SIMPLIFICADO)
+         =================================================================== -->
+    <section id="admin-login-view" class="view-section">
+      <div class="card-slate" style="max-width: 380px; margin: 0 auto;">
+        <h3 style="font-weight: 800; font-size: 1.2rem; margin-bottom: 12px;">Acceso Administrador</h3>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label for="admin-login-username" style="font-weight: 600;">Usuario</label>
+          <input type="text" id="admin-login-username" class="form-control" placeholder="Usuario" autocomplete="username" style="width: 100%; padding: 8px;" />
+        </div>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label for="admin-login-password" style="font-weight: 600;">Contraseña</label>
+          <input type="password" id="admin-login-password" class="form-control" placeholder="Contraseña" autocomplete="current-password" style="width: 100%; padding: 8px;" />
+        </div>
+        <div id="admin-login-error" style="color: var(--alert-red); font-weight: 600; margin-bottom: 12px; display: none;">Credenciales incorrectas</div>
+        <button class="btn-primary" style="width: 100%;" onclick="app.handleAdminLogin()">Ingresar</button>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         3. PANTALLA MODO EXAMEN REAL (TODAS LAS PREGUNTAS EN UNA VISTA)
+         =================================================================== -->
+    <section id="simulator-view" class="view-section">
+      
+      <!-- NAVEGADOR SUPERIOR PEGAJOSO (SELECTOR DE PREGUNTAS) -->
+      <div class="sticky-top-nav">
+        <div class="sticky-top-header">
+          <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-dark); display: flex; align-items: center; gap: 8px;">
+            <span>📍</span> Selector de Preguntas (<span id="answered-count-badge">0</span>/<span id="total-q-num">0</span> respondidas)
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="timer-box">
+              <span>⏱️</span> <span id="timer-display">00:00</span>
+            </div>
+            <button class="btn-danger" style="padding: 6px 14px;" onclick="app.confirmFinishExam()">
+              🏁 Finalizar Examen
+            </button>
+          </div>
+        </div>
+
+        <!-- Botones de Acceso Rápido 1..N -->
+        <div id="top-question-selector-grid" class="q-selector-grid">
+          <!-- Inyectado en JS -->
+        </div>
+      </div>
+
+      <!-- CONTENEDOR DE TODAS LAS PREGUNTAS DEL EXAMEN -->
+      <div id="single-view-questions-container">
+        <!-- Generado en JS -->
+      </div>
+
+      <!-- Botón Finalizar Examen al Pie de Página -->
+      <div class="card-slate" style="text-align: center; padding: 24px; margin-top: 24px;">
+        <h4 style="font-weight: 800; font-size: 1.1rem; margin-bottom: 12px;">¿Has respondido todas las preguntas?</h4>
+        <button class="btn-primary" style="width: auto; padding: 14px 36px;" onclick="app.confirmFinishExam()">
+          🏁 Finalizar Examen y Ver Resultados
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         4. PANTALLA MODO CUESTIONARIO DE ESTUDIO (TODAS EN UNA SOLA VISTA)
+         =================================================================== -->
+    <section id="study-view" class="view-section">
+      
+      <!-- NAVEGADOR SUPERIOR PEGAJOSO DEL CUESTIONARIO -->
+      <div class="sticky-top-nav">
+        <div class="sticky-top-header">
+          <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-dark); display: flex; align-items: center; gap: 8px;">
+            <span>📖</span> Selector del Cuestionario (<span id="study-total-count">0</span> preguntas cargadas)
+          </div>
+          <button class="btn-secondary" style="padding: 6px 14px;" onclick="app.showView('setup-view')">
+            🏠 Volver a Inicio
+          </button>
+        </div>
+
+        <!-- Botones de Acceso Rápido del Cuestionario 1..N -->
+        <div id="top-study-selector-grid" class="q-selector-grid">
+          <!-- Inyectado en JS -->
+        </div>
+      </div>
+
+      <!-- CONTENEDOR DE TODAS LAS PREGUNTAS DEL CUESTIONARIO -->
+      <div id="study-cards-container">
+        <!-- Inyectado en JS -->
+      </div>
+
+      <!-- Pie de página cuestionario -->
+      <div class="card-slate" style="text-align: center; padding: 20px; margin-top: 24px;">
+        <button class="btn-secondary" onclick="app.showView('setup-view')">🏠 Volver a Inicio</button>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         5. PANTALLA DE RESULTADOS Y REVISIÓN DETALLADA
+         =================================================================== -->
+    <section id="results-view" class="view-section">
+      <div class="card-slate results-hero">
+        <div id="result-status-badge" class="result-badge-status status-passed">
+          ¡SIMULACIÓN FINALIZADA!
+        </div>
+
+        <div id="result-score-display" class="score-display">18 / 20</div>
+        <p id="result-score-subtitle" class="score-subtitle">Obtuviste un 90% de aciertos en la prueba</p>
+
+        <!-- Grilla de Métricas -->
+        <div class="metrics-grid">
+          <div class="metric-item">
+            <div id="metric-correct" class="metric-value" style="color: var(--emerald-green);">18</div>
+            <div class="metric-label">Correctas</div>
+          </div>
+          <div class="metric-item">
+            <div id="metric-incorrect" class="metric-value" style="color: var(--alert-red);">2</div>
+            <div class="metric-label">Incorrectas</div>
+          </div>
+          <div class="metric-item">
+            <div id="metric-unanswered" class="metric-value" style="color: var(--text-muted);">0</div>
+            <div class="metric-label">Sin Responder</div>
+          </div>
+          <div class="metric-item">
+            <div id="metric-time" class="metric-value">12:45</div>
+            <div class="metric-label">Tiempo Transcurrido</div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+          <button class="btn-primary" style="width: auto;" onclick="app.startSimulation()">
+            🔄 Repetir Simulador
+          </button>
+          <button class="btn-secondary" onclick="app.showView('setup-view')">
+            🏠 Volver a Inicio
+          </button>
+        </div>
+      </div>
+
+      <!-- Sección de Revisión de Preguntas Mal Hechas y Correctas -->
+      <div class="card-slate">
+        <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 16px;">Revisar Preguntas</h3>
+        
+        <!-- Pestañas de Filtro -->
+        <div class="review-tabs">
+          <button id="tab-all" class="review-tab active" onclick="app.setReviewFilter('all')">Todas (<span id="count-all">0</span>)</button>
+          <button id="tab-incorrect" class="review-tab" onclick="app.setReviewFilter('incorrect')">❌ Mal Hechas / Incorrectas (<span id="count-incorrect">0</span>)</button>
+          <button id="tab-correct" class="review-tab" onclick="app.setReviewFilter('correct')">✅ Bien Hechas / Correctas (<span id="count-correct">0</span>)</button>
+          <button id="tab-unanswered" class="review-tab" onclick="app.setReviewFilter('unanswered')">⚠️ Sin Responder (<span id="count-unanswered">0</span>)</button>
+        </div>
+
+        <!-- Lista de Tarjetas de Preguntas en Revisión -->
+        <div id="review-list-container">
+          <!-- Inyectado dinámicamente -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         6. PANEL DE ADMINISTRADOR (AÑADIR Y EDITAR PREGUNTAS)
+         =================================================================== -->
+    <section id="admin-view" class="view-section">
+      <div class="welcome-hero" style="text-align: left; padding: 12px 0 16px 0;">
+        <h2 class="hero-title">Panel de Administrador</h2>
+        <p class="hero-subtitle" style="margin:0;">Agrega, edita opciones o la respuesta correcta de tus preguntas, y exporta/importa en formato JSON.</p>
+      </div>
+
+      <!-- Tarjeta de Añadir Pregunta por Pegado de Texto -->
+      <div class="card-slate">
+        <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 12px;">📋 Añadir Nueva Pregunta (Pegar Texto)</h3>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 14px;">
+          Pega el texto en el recuadro respetando los ítems <strong>a.</strong>, <strong>b.</strong>, <strong>c.</strong>:
+        </p>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <textarea id="paste-text-input" class="form-control" rows="5" placeholder="Pega tu pregunta aquí. Ejemplo:
+
+La o el conductor que no utilice el cinturón de seguridad, comete: 
+a. Contravención de tránsito de séptima clase.
+b. Contravención de tránsito de quinta clase. 
+c. Contravención de tránsito de segunda clase." oninput="app.parsePastedText()"></textarea>
+        </div>
+
+        <!-- Vista Previa de la Pregunta Detectada -->
+        <div id="parse-preview-box" style="background-color: var(--bg-slate); border: 1px solid var(--border-slate); border-radius: 10px; padding: 14px; margin-bottom: 16px; display: none;">
+          <div style="font-weight: 800; font-size: 0.88rem; color: var(--primary-blue); margin-bottom: 6px;">
+            👁️ Vista Previa Detectada:
+          </div>
+          <div id="preview-question-title" style="font-weight: 700; font-size: 0.98rem; margin-bottom: 10px;"></div>
+          <div id="preview-options-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+        </div>
+
+        <!-- Selector de Respuesta Correcta -->
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label style="font-weight: 700; font-size: 0.92rem; color: var(--text-dark);">
+            Indica cuál es la respuesta correcta:
+          </label>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px;">
+            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: var(--bg-slate); padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border-slate); font-weight: 700;">
+              <input type="radio" name="correct-select" value="0" checked style="width: 18px; height: 18px;"> Opción A (a.)
+            </label>
+            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: var(--bg-slate); padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border-slate); font-weight: 700;">
+              <input type="radio" name="correct-select" value="1" style="width: 18px; height: 18px;"> Opción B (b.)
+            </label>
+            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: var(--bg-slate); padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border-slate); font-weight: 700;">
+              <input type="radio" name="correct-select" value="2" style="width: 18px; height: 18px;"> Opción C (c.)
+            </label>
+            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: var(--bg-slate); padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border-slate); font-weight: 700;">
+              <input type="radio" name="correct-select" value="3" style="width: 18px; height: 18px;"> Opción D (d.)
+            </label>
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="app.addPastedQuestion()">
+          <span>➕</span> Agregar Pregunta al Banco
+        </button>
+      </div>
+
+      <!-- Banco de Preguntas Cargadas -->
+      <div class="card-slate">
+        <div class="admin-toolbar">
+          <div style="flex: 1;">
+            <input type="text" id="admin-search" class="form-control" placeholder="🔍 Buscar en mis preguntas..." oninput="app.renderAdminQuestions()">
+          </div>
+
+          <div class="admin-actions">
+            <button class="btn-secondary" onclick="app.exportJSON()">
+              📥 Exportar Preguntas (JSON)
+            </button>
+            <button class="btn-secondary" onclick="app.openImportModal()">
+              📤 Cargar de Archivo (JSON)
+            </button>
+            <button class="btn-danger" onclick="app.clearAllQuestions()">
+              🗑️ Vaciar Banco
+            </button>
+          </div>
+        </div>
+
+        <div style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted); margin-bottom: 16px;">
+          Total de preguntas cargadas: <span id="admin-total-count" style="color: var(--primary-blue); font-size: 1.1rem;">0</span>
+        </div>
+
+        <!-- Tabla de Preguntas Cargadas -->
+        <div class="questions-table-container">
+          <table class="table-custom">
+            <thead>
+              <tr>
+                <th style="width: 50px;">N°</th>
+                <th>Pregunta y Opciones</th>
+                <th style="width: 160px;">Respuesta Correcta</th>
+                <th style="width: 150px; text-align: center;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="admin-questions-tbody">
+              <!-- Renderizado dinámico en JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </div> <!-- /app-container -->
+
+  <!-- MODAL EDICIÓN DE PREGUNTA (ADMINISTRADOR) -->
+  <div id="edit-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="edit-modal-title">✏️ Editar Pregunta</h3>
+        <button class="modal-close" onclick="app.closeEditModal()">✕</button>
+      </div>
+      
+      <div class="modal-body">
+        <form id="edit-question-form" onsubmit="app.saveEditedQuestion(event)">
+          <input type="hidden" id="edit-q-id">
+
+          <div class="form-group" style="margin-bottom: 16px;">
+            <label for="edit-q-text">Enunciado de la Pregunta:</label>
+            <textarea id="edit-q-text" class="form-control" rows="3" required></textarea>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label>Opciones de Respuesta y Selección de Respuesta Correcta:</label>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <input type="radio" name="edit-correct-radio" value="0" id="edit-radio-0" style="width: 20px; height: 20px;" required>
+              <strong style="width: 20px;">a.</strong>
+              <input type="text" id="edit-opt-0" class="form-control" placeholder="Texto opción A" required>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <input type="radio" name="edit-correct-radio" value="1" id="edit-radio-1" style="width: 20px; height: 20px;">
+              <strong style="width: 20px;">b.</strong>
+              <input type="text" id="edit-opt-1" class="form-control" placeholder="Texto opción B" required>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <input type="radio" name="edit-correct-radio" value="2" id="edit-radio-2" style="width: 20px; height: 20px;">
+              <strong style="width: 20px;">c.</strong>
+              <input type="text" id="edit-opt-2" class="form-control" placeholder="Texto opción C">
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <input type="radio" name="edit-correct-radio" value="3" id="edit-radio-3" style="width: 20px; height: 20px;">
+              <strong style="width: 20px;">d.</strong>
+              <input type="text" id="edit-opt-3" class="form-control" placeholder="Texto opción D (Opcional)">
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="app.closeEditModal()">Cancelar</button>
+            <button type="submit" class="btn-primary" style="width: auto;">💾 Guardar Cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE IMPORTACIÓN DE ARCHIVO JSON -->
+  <div id="import-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Cargar Banco de Preguntas (JSON)</h3>
+        <button class="modal-close" onclick="app.closeImportModal()">✕</button>
+      </div>
+      
+      <div class="modal-body">
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">
+          Si guardaste o tus compañeros te compartieron un archivo de preguntas en formato JSON, cárgalo aquí:
+        </p>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label for="import-file-input">Selecciona archivo JSON:</label>
+          <input type="file" id="import-file-input" accept=".json" class="form-control" onchange="app.handleFileSelect(event)">
+        </div>
+
+        <div class="form-group">
+          <label for="import-json-text">O pega el código JSON aquí:</label>
+          <textarea id="import-json-text" class="form-control" rows="6" placeholder="[{ 'id': 1, 'question': '...', 'options': [...], 'correctAnswer': 0 }]"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="app.closeImportModal()">Cancelar</button>
+        <button type="button" class="btn-primary" style="width: auto;" onclick="app.processImportJSON()">Cargar Preguntas</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast de notificaciones de la nube -->
+  <div id="cloud-toast" class="cloud-toast">
+    <span id="cloud-toast-icon" class="cloud-toast-icon">☁️</span>
+    <span id="cloud-toast-msg" class="cloud-toast-msg">Sincronizando...</span>
+  </div>
+
+  <style>
+    .cloud-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: #f1f5f9;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 600;
+      padding: 14px 22px;
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.28), 0 0 0 1px rgba(99,102,241,0.25);
+      transform: translateY(120px);
+      opacity: 0;
+      transition: transform 0.4s cubic-bezier(.4,0,.2,1), opacity 0.4s cubic-bezier(.4,0,.2,1);
+      pointer-events: none;
+    }
+    .cloud-toast.visible {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .cloud-toast-icon {
+      font-size: 1.3rem;
+      animation: cloud-pulse 1.5s ease-in-out infinite;
+    }
+    .cloud-toast.toast-success {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.28), 0 0 0 1px rgba(16,185,129,0.4);
+    }
+    .cloud-toast.toast-success .cloud-toast-icon {
+      animation: none;
+    }
+    .cloud-toast.toast-error {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.28), 0 0 0 1px rgba(239,68,68,0.5);
+    }
+    .cloud-toast.toast-error .cloud-toast-icon {
+      animation: none;
+    }
+    @keyframes cloud-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.12); }
+    }
+  </style>
+
+  <!-- Carga de Scripts -->
+  <script src="questions-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
