@@ -29,10 +29,10 @@
       
       <div class="role-switch">
         <button id="role-student-btn" class="role-btn active" onclick="app.switchRole('student')">
-          <span>🎓</span> Estudiante
+          <span></span> Estudiante
         </button>
         <button id="role-admin-btn" class="role-btn" onclick="app.switchRole('admin')">
-          <span>⚙️</span> Administrador
+          <span></span> Administrador
         </button>
       </div>
     </div>
@@ -54,28 +54,28 @@
         <div class="mode-grid">
           <!-- Modo Examen Real -->
           <div class="mode-card selected" id="mode-card-exam" onclick="app.selectMode('exam')">
-            <div class="mode-icon">📝</div>
+            <div class="mode-icon"></div>
             <div class="mode-title">Modo Examen Real</div>
-            <div class="mode-desc">Todas las preguntas del banco en una sola vista con selector de preguntas en la parte superior y botón de finalizar examen.</div>
+            <div class="mode-desc">Todas las preguntas del banco .</div>
           </div>
 
           <!-- Modo 20 Preguntas Aleatorias -->
           <div class="mode-card" id="mode-card-random" onclick="app.selectMode('random20')">
-            <div class="mode-icon">🎲</div>
+            <div class="mode-icon"></div>
             <div class="mode-title">20 Preguntas Aleatorias</div>
-            <div class="mode-desc">Se seleccionan 20 preguntas al azar del banco. Ideal para practicar rápidamente como si fuera el examen real de la ANT.</div>
+            <div class="mode-desc">Se seleccionan 20 preguntas al azar del banco.</div>
           </div>
 
           <!-- Modo Cuestionario de Estudio -->
           <div class="mode-card" id="mode-card-study" onclick="app.selectMode('study')">
-            <div class="mode-icon">📖</div>
+            <div class="mode-icon"></div>
             <div class="mode-title">Modo Cuestionario de Estudio</div>
             <div class="mode-desc">Todas las preguntas del banco en una sola vista con su respuesta correcta marcada y selector superior de preguntas.</div>
           </div>
         </div>
 
         <button class="btn-primary" style="margin-top: 10px;" onclick="app.startSimulation()">
-          <span>🚀</span> Iniciar Modo Seleccionado
+          <span></span> Iniciar Modo Seleccionado
         </button>
       </div>
     </section>
@@ -108,14 +108,14 @@
       <div class="sticky-top-nav">
         <div class="sticky-top-header">
           <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-dark); display: flex; align-items: center; gap: 8px;">
-            <span>📍</span> Selector de Preguntas (<span id="answered-count-badge">0</span>/<span id="total-q-num">0</span> respondidas)
+            <span></span> Selector de Preguntas (<span id="answered-count-badge">0</span>/<span id="total-q-num">0</span> respondidas)
           </div>
           <div style="display: flex; align-items: center; gap: 12px;">
             <div class="timer-box">
               <span>⏱️</span> <span id="timer-display">00:00</span>
             </div>
             <button class="btn-danger" style="padding: 6px 14px;" onclick="app.confirmFinishExam()">
-              🏁 Finalizar Examen
+              Finalizar Examen
             </button>
           </div>
         </div>
@@ -135,7 +135,7 @@
       <div class="card-slate" style="text-align: center; padding: 24px; margin-top: 24px;">
         <h4 style="font-weight: 800; font-size: 1.1rem; margin-bottom: 12px;">¿Has respondido todas las preguntas?</h4>
         <button class="btn-primary" style="width: auto; padding: 14px 36px;" onclick="app.confirmFinishExam()">
-          🏁 Finalizar Examen y Ver Resultados
+           Finalizar Examen y Ver Resultados
         </button>
       </div>
     </section>
