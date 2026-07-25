@@ -29,10 +29,10 @@
       
       <div class="role-switch">
         <button id="role-student-btn" class="role-btn active" onclick="app.switchRole('student')">
-          <span>🎓</span> Estudiante
+          <span></span> Estudiante
         </button>
         <button id="role-admin-btn" class="role-btn" onclick="app.switchRole('admin')">
-          <span>⚙️</span> Administrador
+          <span></span> Administrador
         </button>
       </div>
     </div>
@@ -54,28 +54,28 @@
         <div class="mode-grid">
           <!-- Modo Examen Real -->
           <div class="mode-card selected" id="mode-card-exam" onclick="app.selectMode('exam')">
-            <div class="mode-icon">📝</div>
+            <div class="mode-icon"></div>
             <div class="mode-title">Modo Examen Real</div>
             <div class="mode-desc">Todas las preguntas del banco en una sola vista con selector de preguntas en la parte superior y botón de finalizar examen.</div>
           </div>
 
           <!-- Modo 20 Preguntas Aleatorias -->
           <div class="mode-card" id="mode-card-random" onclick="app.selectMode('random20')">
-            <div class="mode-icon">🎲</div>
+            <div class="mode-icon"></div>
             <div class="mode-title">20 Preguntas Aleatorias</div>
             <div class="mode-desc">Se seleccionan 20 preguntas al azar del banco.</div>
           </div>
 
           <!-- Modo Cuestionario de Estudio -->
           <div class="mode-card" id="mode-card-study" onclick="app.selectMode('study')">
-            <div class="mode-icon">📖</div>
+            <div class="mode-icon"></div>
             <div class="mode-title">Modo Cuestionario de Estudio</div>
             <div class="mode-desc">Todas las preguntas del banco en una sola vista con su respuesta correcta marcada y selector superior de preguntas.</div>
           </div>
         </div>
 
         <button class="btn-primary" style="margin-top: 10px;" onclick="app.startSimulation()">
-          <span>🚀</span> Iniciar Modo Seleccionado
+          <span></span> Iniciar Modo Seleccionado
         </button>
       </div>
     </section>
@@ -149,7 +149,7 @@
       <div class="sticky-top-nav">
         <div class="sticky-top-header">
           <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-dark); display: flex; align-items: center; gap: 8px;">
-            <span>📖</span> Selector del Cuestionario (<span id="study-total-count">0</span> preguntas cargadas)
+            <span></span> Selector del Cuestionario (<span id="study-total-count">0</span> preguntas cargadas)
           </div>
           <button class="btn-secondary" style="padding: 6px 14px;" onclick="app.showView('setup-view')">
             🏠 Volver a Inicio
